@@ -142,7 +142,8 @@ if (COST_LIMITS.EMERGENCY_SHUTDOWN_LIMIT <= 0) {
   console.warn('⚠️ EMERGENCY_SHUTDOWN_LIMIT not set or invalid, using default: $50.00');
 }
 
-if (!process.env.REDIS_URL && process.env.NODE_ENV === 'production') {
+// Only check for REDIS_URL at runtime, not during build
+if (typeof window === 'undefined' && !process.env.REDIS_URL && process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'production') {
   console.error('❌ REDIS_URL is required for cost protection in production!');
 }
 
