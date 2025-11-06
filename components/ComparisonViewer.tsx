@@ -195,16 +195,23 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               className="flex flex-col items-center"
             >
               <div
-                className="bg-gradient-to-br from-brand-400 to-brand-600 rounded-lg mb-4 flex items-center justify-center text-white font-bold shadow-xl"
+                className="relative bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-white/20"
                 style={{
                   width: `${Math.min(obj1Dims.scale * 80, 200)}px`,
                   height: `${obj1Dims.height}px`,
                 }}
               >
-                <div className="text-center p-4">
-                  <div className="text-2xl mb-2">📏</div>
-                  <div className="text-sm">{object1.name}</div>
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 opacity-10" style={{
+                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
+                  backgroundSize: '20px 20px'
+                }} />
+                <div className="text-center p-4 relative z-10">
+                  <div className="text-4xl mb-2">📏</div>
+                  <div className="text-sm font-semibold">{object1.name}</div>
                 </div>
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
               </div>
               <div className="text-center">
                 <div className="font-bold text-lg">{object1.name}</div>
@@ -222,16 +229,23 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               className="flex flex-col items-center"
             >
               <div
-                className="bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg mb-4 flex items-center justify-center text-white font-bold shadow-xl"
+                className="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-white/20"
                 style={{
                   width: `${Math.min(obj2Dims.scale * 80, 200)}px`,
                   height: `${obj2Dims.height}px`,
                 }}
               >
-                <div className="text-center p-4">
-                  <div className="text-2xl mb-2">📐</div>
-                  <div className="text-sm">{object2.name}</div>
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 opacity-10" style={{
+                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
+                  backgroundSize: '20px 20px'
+                }} />
+                <div className="text-center p-4 relative z-10">
+                  <div className="text-4xl mb-2">📐</div>
+                  <div className="text-sm font-semibold">{object2.name}</div>
                 </div>
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
               </div>
               <div className="text-center">
                 <div className="font-bold text-lg">{object2.name}</div>
@@ -250,25 +264,33 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 0.6, scale: 1 }}
-                className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-gradient-to-br from-brand-400 to-brand-600 rounded-lg flex items-center justify-center text-white font-bold shadow-xl"
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl flex items-center justify-center text-white font-bold shadow-2xl border-4 border-white/20 overflow-hidden"
                 style={{
                   width: `${Math.min(obj1Dims.scale * 80, 200)}px`,
                   height: `${obj1Dims.height}px`,
                 }}
               >
-                <div className="text-sm">{object1.name}</div>
+                <div className="absolute inset-0 opacity-10" style={{
+                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
+                  backgroundSize: '20px 20px'
+                }} />
+                <div className="text-sm relative z-10">{object1.name}</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 0.9, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-xl"
+                className="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold shadow-2xl border-4 border-white/20 overflow-hidden"
                 style={{
                   width: `${Math.min(obj2Dims.scale * 80, 200)}px`,
                   height: `${obj2Dims.height}px`,
                 }}
               >
-                <div className="text-sm">{object2.name}</div>
+                <div className="absolute inset-0 opacity-10" style={{
+                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
+                  backgroundSize: '20px 20px'
+                }} />
+                <div className="text-sm relative z-10">{object2.name}</div>
               </motion.div>
             </div>
           </div>
@@ -282,13 +304,17 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               className="flex flex-col items-center"
             >
               <div
-                className="bg-gradient-to-br from-brand-400 to-brand-600 rounded-lg mb-4 flex items-center justify-center text-white font-bold shadow-xl"
+                className="relative bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-white/20"
                 style={{
                   width: `${Math.min(obj1Dims.scale * 100, 300)}px`,
                   height: `${obj1Dims.height}px`,
                 }}
               >
-                {obj1Dims.height > 100 && <div className="text-sm p-2">{object1.name}</div>}
+                <div className="absolute inset-0 opacity-10" style={{
+                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
+                  backgroundSize: '20px 20px'
+                }} />
+                {obj1Dims.height > 100 && <div className="text-sm p-2 relative z-10">{object1.name}</div>}
               </div>
               <div className="text-sm font-semibold">{object1.name}</div>
             </motion.div>
@@ -300,13 +326,17 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               className="flex flex-col items-center"
             >
               <div
-                className="bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg mb-4 flex items-center justify-center text-white font-bold shadow-xl"
+                className="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-white/20"
                 style={{
                   width: `${Math.min(obj2Dims.scale * 100, 300)}px`,
                   height: `${obj2Dims.height}px`,
                 }}
               >
-                {obj2Dims.height > 100 && <div className="text-sm p-2">{object2.name}</div>}
+                <div className="absolute inset-0 opacity-10" style={{
+                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
+                  backgroundSize: '20px 20px'
+                }} />
+                {obj2Dims.height > 100 && <div className="text-sm p-2 relative z-10">{object2.name}</div>}
               </div>
               <div className="text-sm font-semibold">{object2.name}</div>
             </motion.div>

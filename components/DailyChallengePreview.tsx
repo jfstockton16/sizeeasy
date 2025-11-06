@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react'
 export default function DailyChallengePreview() {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 })
   const [streak, setStreak] = useState(7)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [showResult, setShowResult] = useState(false)
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -32,7 +34,23 @@ export default function DailyChallengePreview() {
     question: 'Which is bigger?',
     option1: 'Amazon Rainforest',
     option2: 'All of Europe\'s Roads',
+    correctAnswer: 1, // 1 for option1, 2 for option2
     participants: 12847,
+    explanation: 'The Amazon Rainforest covers approximately 5.5 million km², while all of Europe\'s roads combined would only cover about 50,000 km² if laid side by side!'
+  }
+
+  const handleAnswerClick = (option: number) => {
+    if (showResult) return // Already answered
+    setSelectedAnswer(option)
+    setShowResult(true)
+    if (option === todayChallenge.correctAnswer) {
+      setStreak(prev => prev + 1)
+    }
+  }
+
+  const handleTakeChallenge = () => {
+    setShowResult(false)
+    setSelectedAnswer(null)
   }
 
   return (
@@ -74,15 +92,70 @@ export default function DailyChallengePreview() {
             <div className="text-center mb-6">
               <h3 className="text-xl font-semibold mb-4">{todayChallenge.question}</h3>
               <div className="grid grid-cols-2 gap-4">
-                <button className="p-6 rounded-lg border-2 border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all group">
+                <button
+                  onClick={() => handleAnswerClick(1)}
+                  disabled={showResult}
+                  className={`p-6 rounded-lg border-2 transition-all group ${
+                    showResult
+                      ? selectedAnswer === 1
+                        ? todayChallenge.correctAnswer === 1
+                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                          : 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                        : todayChallenge.correctAnswer === 1
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-gray-300 opacity-50'
+                      : 'border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 cursor-pointer'
+                  }`}
+                >
                   <div className="text-lg font-bold mb-2">{todayChallenge.option1}</div>
-                  <div className="text-sm text-gray-500">Click to guess</div>
+                  <div className="text-sm text-gray-500">
+                    {showResult
+                      ? todayChallenge.correctAnswer === 1
+                        ? '✓ Correct!'
+                        : selectedAnswer === 1
+                        ? '✗ Incorrect'
+                        : 'Not selected'
+                      : 'Click to guess'}
+                  </div>
                 </button>
-                <button className="p-6 rounded-lg border-2 border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all group">
+                <button
+                  onClick={() => handleAnswerClick(2)}
+                  disabled={showResult}
+                  className={`p-6 rounded-lg border-2 transition-all group ${
+                    showResult
+                      ? selectedAnswer === 2
+                        ? todayChallenge.correctAnswer === 2
+                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                          : 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                        : todayChallenge.correctAnswer === 2
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-gray-300 opacity-50'
+                      : 'border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer'
+                  }`}
+                >
                   <div className="text-lg font-bold mb-2">{todayChallenge.option2}</div>
-                  <div className="text-sm text-gray-500">Click to guess</div>
+                  <div className="text-sm text-gray-500">
+                    {showResult
+                      ? todayChallenge.correctAnswer === 2
+                        ? '✓ Correct!'
+                        : selectedAnswer === 2
+                        ? '✗ Incorrect'
+                        : 'Not selected'
+                      : 'Click to guess'}
+                  </div>
                 </button>
               </div>
+
+              {/* Show explanation after answering */}
+              {showResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-left"
+                >
+                  <strong>Explanation:</strong> {todayChallenge.explanation}
+                </motion.div>
+              )}
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -98,8 +171,11 @@ export default function DailyChallengePreview() {
           </div>
 
           {/* CTA */}
-          <button className="w-full py-4 bg-gradient-to-r from-brand-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all group flex items-center justify-center gap-2">
-            Take Today's Challenge
+          <button
+            onClick={handleTakeChallenge}
+            className="w-full py-4 bg-gradient-to-r from-brand-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all group flex items-center justify-center gap-2"
+          >
+            {showResult ? 'Try Another Challenge' : 'Take Today\'s Challenge'}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
         </motion.div>

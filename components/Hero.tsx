@@ -96,7 +96,13 @@ export default function Hero({ onStartComparison }: HeroProps) {
               Start Comparing Free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="px-8 py-4 glass rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+            <button
+              onClick={() => {
+                const trendingSection = document.getElementById('trending')
+                trendingSection?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+              className="px-8 py-4 glass rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+            >
               See Examples
             </button>
           </motion.div>

@@ -30,7 +30,8 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
   }, [])
 
   // Generate simple box dimensions for AR visualization
-  const getARDimensions = (obj: SizeObject) => {
+  const getARDimensions = (obj: SizeObject | null | undefined) => {
+    if (!obj) return { height: 1, width: 0.4, depth: 0.4 }
     const height = obj.height || obj.length || 1
     const width = obj.width || height * 0.4
     const depth = obj.length || height * 0.4
@@ -39,6 +40,11 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
 
   const obj1Dims = getARDimensions(object1)
   const obj2Dims = getARDimensions(object2)
+
+  // Safety check - don't render if objects are missing
+  if (!object1 || !object2) {
+    return null
+  }
 
   if (!isARSupported) {
     return (
