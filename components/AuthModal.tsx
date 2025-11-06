@@ -50,7 +50,9 @@ export default function AuthModal({
 
       if (data.user) {
         // Create user profile
-        const { error: profileError } = await supabase.from('user_profiles').insert({
+        const { error: profileError } = await supabase.from('user_profiles')
+        // @ts-expect-error - Supabase type inference issue
+        .insert({
           id: data.user.id,
           email: data.user.email,
           display_name: displayName,

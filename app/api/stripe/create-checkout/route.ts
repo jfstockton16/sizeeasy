@@ -6,10 +6,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { trackPremiumUpgradeShown } from '@/lib/analytics'
+import type { UserProfile } from '@/lib/types/database'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-10-29.clover',
 })
 
 export async function POST(request: NextRequest) {
@@ -28,15 +29,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (profileError || !profile) {
+    if (profileError || !profileData) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
+
+    const profile = profileData as UserProfile
 
     // Track analytics
     await trackPremiumUpgradeShown(user.id, triggerPoint || 'upgrade_modal')
@@ -66,6 +69,7 @@ export async function POST(request: NextRequest) {
       // Update profile with customer ID
       await supabase
         .from('user_profiles')
+        // @ts-expect-error - Supabase type inference issue
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id)
     }

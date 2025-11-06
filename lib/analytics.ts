@@ -18,7 +18,9 @@ export async function trackEvent(
 ): Promise<void> {
   const supabase = createServiceRoleClient()
 
-  await supabase.from('analytics_events').insert({
+  await supabase.from('analytics_events')
+  // @ts-expect-error - Supabase type inference issue
+  .insert({
     user_id: userId || null,
     event_name: eventName,
     event_data: eventData || null,

@@ -21,23 +21,26 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceRoleClient()
 
     // Find referrer by referral code
-    const { data: referrer, error: referrerError } = await supabase
+    type ReferrerResult = { id: string } | null
+    const { data: referrerData, error: referrerError } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('referral_code', referralCode)
-      .single()
+      .maybeSingle() as { data: ReferrerResult; error: any }
 
-    if (referrerError || !referrer) {
+    if (referrerError || !referrerData) {
       return NextResponse.json({ error: 'Invalid referral code' }, { status: 404 })
     }
+
+    const referrerId: string = referrerData.id
 
     // Check if referral already exists
     const { data: existingReferral } = await supabase
       .from('referrals')
       .select('id')
-      .eq('referrer_id', referrer.id)
-      .eq('referred_user_id', referredUserId)
-      .single()
+      .eq('referrer_id', referrerId as any)
+      .eq('referred_user_id', referredUserId as any)
+      .maybeSingle()
 
     if (existingReferral) {
       return NextResponse.json(
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Award credits to referrer
-    const result = await awardReferralCredits(referrer.id, referredUserId)
+    const result = await awardReferralCredits(referrerId, referredUserId)
 
     if (!result.success) {
       return NextResponse.json({ error: 'Failed to award credits' }, { status: 500 })
@@ -56,8 +59,8 @@ export async function POST(request: NextRequest) {
     // Update referred user's profile
     await supabase
       .from('user_profiles')
-      .update({ referred_by: referrer.id })
-      .eq('id', referredUserId)
+      .update({ referred_by: referrerId } as any)
+      .eq('id', referredUserId as any)
 
     return NextResponse.json({
       success: true,
