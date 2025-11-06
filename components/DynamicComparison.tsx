@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Loader2, Sparkles, Layers, Download, Share2 } from 'lucide-react'
+import { useComparisonStore } from '@/lib/store'
+import { formatLength, formatWeight } from '@/lib/units'
 import dynamic from 'next/dynamic'
 
 // Dynamic imports to avoid SSR issues
@@ -49,6 +51,7 @@ export default function DynamicComparison({
   object2Name,
   onBack,
 }: DynamicComparisonProps) {
+  const { unitSystem } = useComparisonStore()
   const [object1, setObject1] = useState<ObjectData | null>(null)
   const [object2, setObject2] = useState<ObjectData | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('side-by-side')
@@ -350,25 +353,25 @@ export default function DynamicComparison({
                   {object1.height && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Height:</span>
-                      <span className="font-semibold">{object1.height.toFixed(2)}m</span>
+                      <span className="font-semibold">{formatLength(object1.height, unitSystem)}</span>
                     </div>
                   )}
                   {object1.width && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Width:</span>
-                      <span className="font-semibold">{object1.width.toFixed(2)}m</span>
+                      <span className="font-semibold">{formatLength(object1.width, unitSystem)}</span>
                     </div>
                   )}
                   {object1.length && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Length:</span>
-                      <span className="font-semibold">{object1.length.toFixed(2)}m</span>
+                      <span className="font-semibold">{formatLength(object1.length, unitSystem)}</span>
                     </div>
                   )}
                   {object1.weight && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Weight:</span>
-                      <span className="font-semibold">{object1.weight.toLocaleString()}kg</span>
+                      <span className="font-semibold">{formatWeight(object1.weight, unitSystem)}</span>
                     </div>
                   )}
                 </div>
@@ -398,25 +401,25 @@ export default function DynamicComparison({
                   {object2.height && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Height:</span>
-                      <span className="font-semibold">{object2.height.toFixed(2)}m</span>
+                      <span className="font-semibold">{formatLength(object2.height, unitSystem)}</span>
                     </div>
                   )}
                   {object2.width && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Width:</span>
-                      <span className="font-semibold">{object2.width.toFixed(2)}m</span>
+                      <span className="font-semibold">{formatLength(object2.width, unitSystem)}</span>
                     </div>
                   )}
                   {object2.length && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Length:</span>
-                      <span className="font-semibold">{object2.length.toFixed(2)}m</span>
+                      <span className="font-semibold">{formatLength(object2.length, unitSystem)}</span>
                     </div>
                   )}
                   {object2.weight && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Weight:</span>
-                      <span className="font-semibold">{object2.weight.toLocaleString()}kg</span>
+                      <span className="font-semibold">{formatWeight(object2.weight, unitSystem)}</span>
                     </div>
                   )}
                 </div>

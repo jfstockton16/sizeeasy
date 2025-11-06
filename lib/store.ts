@@ -1,5 +1,7 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { SizeObject } from './objects'
+import { UnitSystem } from './units'
 
 interface Comparison {
   id: string
@@ -40,6 +42,11 @@ interface ComparisonStore {
   // View mode
   viewMode: 'side-by-side' | 'overlay' | 'scale' | '3d'
   setViewMode: (mode: 'side-by-side' | 'overlay' | 'scale' | '3d') => void
+
+  // Unit system preference (imperial by default)
+  unitSystem: UnitSystem
+  setUnitSystem: (system: UnitSystem) => void
+  toggleUnitSystem: () => void
 }
 
 export const useComparisonStore = create<ComparisonStore>((set) => ({
@@ -106,4 +113,12 @@ export const useComparisonStore = create<ComparisonStore>((set) => ({
 
   viewMode: 'side-by-side',
   setViewMode: (mode) => set({ viewMode: mode }),
+
+  // Default to imperial system
+  unitSystem: 'imperial',
+  setUnitSystem: (system) => set({ unitSystem: system }),
+  toggleUnitSystem: () =>
+    set((state) => ({
+      unitSystem: state.unitSystem === 'metric' ? 'imperial' : 'metric',
+    })),
 }))

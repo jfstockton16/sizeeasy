@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { SizeObject, calculateSizeRatio } from '@/lib/objects'
 import { useComparisonStore } from '@/lib/store'
+import { formatLength, formatWeight, getPrimaryDimension } from '@/lib/units'
 import dynamic from 'next/dynamic'
 import ComparisonARViewer from './ComparisonARViewer'
 
@@ -38,7 +39,7 @@ interface ComparisonViewerProps {
 }
 
 export default function ComparisonViewer({ object1, object2 }: ComparisonViewerProps) {
-  const { viewMode, setViewMode, swapObjects } = useComparisonStore()
+  const { viewMode, setViewMode, swapObjects, unitSystem } = useComparisonStore()
   const [liked, setLiked] = useState(false)
   const [showShare, setShowShare] = useState(false)
   const [showAR, setShowAR] = useState(false)
@@ -216,8 +217,7 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               <div className="text-center">
                 <div className="font-bold text-lg">{object1.name}</div>
                 <div className="text-sm text-gray-500">
-                  {object1.height && `${object1.height}m tall`}
-                  {object1.length && !object1.height && `${object1.length}m long`}
+                  {getPrimaryDimension(object1, unitSystem)}
                 </div>
               </div>
             </motion.div>
@@ -250,8 +250,7 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               <div className="text-center">
                 <div className="font-bold text-lg">{object2.name}</div>
                 <div className="text-sm text-gray-500">
-                  {object2.height && `${object2.height}m tall`}
-                  {object2.length && !object2.height && `${object2.length}m long`}
+                  {getPrimaryDimension(object2, unitSystem)}
                 </div>
               </div>
             </motion.div>
@@ -381,9 +380,9 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               {object1.name}
             </div>
             <div className="space-y-1 text-sm">
-              {object1.height && <div>Height: {object1.height}m</div>}
-              {object1.length && <div>Length: {object1.length}m</div>}
-              {object1.weight && <div>Weight: {object1.weight.toLocaleString()}kg</div>}
+              {object1.height && <div>Height: {formatLength(object1.height, unitSystem)}</div>}
+              {object1.length && <div>Length: {formatLength(object1.length, unitSystem)}</div>}
+              {object1.weight && <div>Weight: {formatWeight(object1.weight, unitSystem)}</div>}
             </div>
           </div>
 
@@ -392,9 +391,9 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               {object2.name}
             </div>
             <div className="space-y-1 text-sm">
-              {object2.height && <div>Height: {object2.height}m</div>}
-              {object2.length && <div>Length: {object2.length}m</div>}
-              {object2.weight && <div>Weight: {object2.weight.toLocaleString()}kg</div>}
+              {object2.height && <div>Height: {formatLength(object2.height, unitSystem)}</div>}
+              {object2.length && <div>Length: {formatLength(object2.length, unitSystem)}</div>}
+              {object2.weight && <div>Weight: {formatWeight(object2.weight, unitSystem)}</div>}
             </div>
           </div>
         </div>

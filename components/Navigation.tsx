@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Moon, Sun, Menu, X, Sparkles } from 'lucide-react'
+import { Moon, Sun, Menu, X, Sparkles, Ruler } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
+import { useComparisonStore } from '@/lib/store'
 
 export default function Navigation() {
   const { theme, setTheme, resolvedTheme } = useTheme()
+  const { unitSystem, toggleUnitSystem } = useComparisonStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const toggleTheme = () => {
@@ -40,6 +42,16 @@ export default function Navigation() {
             <a href="#about" className="text-sm font-medium hover:text-brand-500 transition-colors">
               About
             </a>
+
+            <button
+              onClick={toggleUnitSystem}
+              className="px-3 py-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5 text-sm font-medium"
+              aria-label="Toggle unit system"
+              title={`Switch to ${unitSystem === 'imperial' ? 'Metric' : 'Imperial'}`}
+            >
+              <Ruler className="w-4 h-4" />
+              <span className="text-xs font-semibold">{unitSystem === 'imperial' ? 'FT' : 'M'}</span>
+            </button>
 
             <button
               onClick={toggleTheme}
@@ -82,14 +94,26 @@ export default function Navigation() {
             <a href="#about" className="block text-sm font-medium hover:text-brand-500">
               About
             </a>
-            <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-800">
-              <span className="text-sm font-medium">Theme</span>
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800"
-              >
-                {resolvedTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Units</span>
+                <button
+                  onClick={toggleUnitSystem}
+                  className="px-3 py-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 flex items-center gap-1.5"
+                >
+                  <Ruler className="w-4 h-4" />
+                  <span className="text-xs font-semibold">{unitSystem === 'imperial' ? 'Imperial (ft)' : 'Metric (m)'}</span>
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Theme</span>
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800"
+                >
+                  {resolvedTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>
