@@ -8,7 +8,7 @@ import { SizeObject } from '@/lib/objects'
 interface ComparisonARViewerProps {
   object1: SizeObject
   object2: SizeObject
-  onClose: () => void
+  onClose?: () => void
 }
 
 export default function ComparisonARViewer({ object1, object2, onClose }: ComparisonARViewerProps) {
@@ -51,19 +51,16 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="glass rounded-2xl p-8 max-w-md mx-auto text-center"
       >
-        <motion.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          className="glass rounded-2xl p-8 max-w-md w-full text-center"
-        >
+        {onClose && (
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
+        )}
 
           <Smartphone className="w-16 h-16 mx-auto mb-4 text-brand-500" />
           <h2 className="text-2xl font-bold mb-4">AR Not Available</h2>
@@ -80,13 +77,14 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
               <span>Android with Chrome browser</span>
             </li>
           </ul>
-          <button
-            onClick={onClose}
-            className="w-full py-3 bg-brand-500 text-white rounded-xl font-semibold hover:bg-brand-600 transition-colors"
-          >
-            Got It
-          </button>
-        </motion.div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-full py-3 bg-brand-500 text-white rounded-xl font-semibold hover:bg-brand-600 transition-colors"
+            >
+              Got It
+            </button>
+          )}
       </motion.div>
     )
   }
@@ -95,21 +93,23 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 bg-black z-50"
+      className="glass rounded-2xl overflow-hidden"
     >
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-black/80 to-transparent">
+      <div className="p-4 bg-gradient-to-b from-black/80 to-transparent">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Camera className="w-5 h-5 text-white" />
             <span className="text-white font-semibold">AR Mode</span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full transition-colors"
-          >
-            <X className="w-6 h-6 text-white" />
-          </button>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -159,7 +159,7 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
       </AnimatePresence>
 
       {/* AR Viewer Container */}
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="w-full min-h-[600px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
         <div className="text-center text-white p-8">
           <Camera className="w-20 h-20 mx-auto mb-4 animate-pulse" />
           <h2 className="text-2xl font-bold mb-2">AR Experience Ready</h2>
@@ -200,13 +200,9 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
           <p className="text-xs text-gray-400 mt-4">
             Note: AR requires camera permissions
           </p>
-        </div>
-      </div>
-
-      {/* Footer Info */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-        <div className="text-center text-sm text-gray-400">
-          <p>Powered by WebXR • sizeeasy.com</p>
+          <p className="text-xs text-gray-500 mt-2">
+            Powered by WebXR
+          </p>
         </div>
       </div>
     </motion.div>
