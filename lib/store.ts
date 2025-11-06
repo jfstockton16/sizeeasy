@@ -38,8 +38,8 @@ interface ComparisonStore {
   saveComparison: (comparison: Omit<Comparison, 'id' | 'createdAt'>) => void
 
   // View mode
-  viewMode: 'side-by-side' | 'overlay' | 'scale'
-  setViewMode: (mode: 'side-by-side' | 'overlay' | 'scale') => void
+  viewMode: 'side-by-side' | 'overlay' | 'scale' | '3d'
+  setViewMode: (mode: 'side-by-side' | 'overlay' | 'scale' | '3d') => void
 }
 
 export const useComparisonStore = create<ComparisonStore>((set) => ({

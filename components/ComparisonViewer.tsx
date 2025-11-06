@@ -11,9 +11,24 @@ import {
   Grid3x3,
   Layers,
   Lightbulb,
+  Box,
 } from 'lucide-react'
 import { SizeObject, calculateSizeRatio } from '@/lib/objects'
 import { useComparisonStore } from '@/lib/store'
+import dynamic from 'next/dynamic'
+
+// Dynamically import 3D viewer to avoid SSR issues with Three.js
+const Comparison3DViewer = dynamic(() => import('./Comparison3DViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-[600px]">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="text-lg font-semibold">Loading 3D Engine...</div>
+      </div>
+    </div>
+  ),
+})
 
 interface ComparisonViewerProps {
   object1: SizeObject
@@ -96,7 +111,7 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
     <div className="space-y-6">
       {/* View Mode Selector */}
       <div className="flex items-center justify-between glass rounded-xl p-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setViewMode('side-by-side')}
             className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
@@ -106,7 +121,8 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
             }`}
           >
             <Grid3x3 className="w-4 h-4" />
-            Side by Side
+            <span className="hidden sm:inline">Side by Side</span>
+            <span className="sm:hidden">Side</span>
           </button>
           <button
             onClick={() => setViewMode('overlay')}
@@ -117,7 +133,7 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
             }`}
           >
             <Layers className="w-4 h-4" />
-            Overlay
+            <span className="hidden sm:inline">Overlay</span>
           </button>
           <button
             onClick={() => setViewMode('scale')}
@@ -128,7 +144,20 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
             }`}
           >
             <Maximize2 className="w-4 h-4" />
-            To Scale
+            <span className="hidden sm:inline">To Scale</span>
+            <span className="sm:hidden">Scale</span>
+          </button>
+          <button
+            onClick={() => setViewMode('3d')}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
+              viewMode === '3d'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            <Box className="w-4 h-4" />
+            <span className="font-semibold">3D</span>
+            <span className="text-xs bg-yellow-400 text-black px-1.5 py-0.5 rounded-full ml-1">NEW</span>
           </button>
         </div>
 
@@ -269,6 +298,17 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               <div className="text-sm font-semibold">{object2.name}</div>
             </motion.div>
           </div>
+        )}
+
+        {viewMode === '3d' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="-m-8"
+          >
+            <Comparison3DViewer object1={object1} object2={object2} />
+          </motion.div>
         )}
       </div>
 
