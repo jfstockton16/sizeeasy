@@ -308,7 +308,9 @@ export async function getCircuitBreakerStatus(): Promise<CircuitBreakerStatus> {
       const data = JSON.parse(lastFailureData as string);
       lastFailureTime = data.time;
       reason = data.reason;
-      resetTime = lastFailureTime + CIRCUIT_BREAKER_CONFIG.RESET_TIMEOUT_MS;
+      if (lastFailureTime !== undefined) {
+        resetTime = lastFailureTime + CIRCUIT_BREAKER_CONFIG.RESET_TIMEOUT_MS;
+      }
     }
 
     return {

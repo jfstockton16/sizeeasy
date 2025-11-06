@@ -4,7 +4,7 @@
  */
 
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import type { ComparisonCache } from '@/lib/types/database'
+import type { ComparisonCache, Json, Database } from '@/lib/types/database'
 import type { ObjectDimensions } from '@/lib/ai-dimensions'
 
 /**
@@ -47,11 +47,8 @@ export async function getCachedComparison(
   const { data, error } = await supabase
     .from('comparisons_cache')
     .select('*')
-    // @ts-expect-error - Supabase type inference issue
     .eq('object1_name', name1)
-    // @ts-expect-error
     .eq('object2_name', name2)
-    // @ts-expect-error
     .eq('quality_tier', qualityTier)
     .single()
 
@@ -98,31 +95,33 @@ export async function cacheComparison(params: {
   // Determine which object goes where based on cache key ordering
   const isSwapped = normalizeObjectName(params.object1Name) !== name1
 
+  type CacheInsert = Database['public']['Tables']['comparisons_cache']['Insert']
+
+  const cacheData: CacheInsert = {
+    object1_name: name1,
+    object2_name: name2,
+    object1_dimensions: (isSwapped ? params.object2Dimensions : params.object1Dimensions) as unknown as Json,
+    object2_dimensions: (isSwapped ? params.object1Dimensions : params.object2Dimensions) as unknown as Json,
+    object1_model_url: isSwapped ? params.object2ModelUrl : params.object1ModelUrl,
+    object2_model_url: isSwapped ? params.object1ModelUrl : params.object2ModelUrl,
+    object1_thumbnail_url: isSwapped
+      ? params.object2ThumbnailUrl
+      : params.object1ThumbnailUrl,
+    object2_thumbnail_url: isSwapped
+      ? params.object1ThumbnailUrl
+      : params.object2ThumbnailUrl,
+    comparison_image_url: params.comparisonImageUrl,
+    generation_cost: params.generationCost || 0.02,
+    quality_tier: params.qualityTier || 'free',
+    last_served_at: new Date().toISOString(),
+  }
+
   const { data, error } = await supabase
     .from('comparisons_cache')
-    .upsert(
-      {
-        object1_name: name1,
-        object2_name: name2,
-        object1_dimensions: isSwapped ? params.object2Dimensions : params.object1Dimensions,
-        object2_dimensions: isSwapped ? params.object1Dimensions : params.object2Dimensions,
-        object1_model_url: isSwapped ? params.object2ModelUrl : params.object1ModelUrl,
-        object2_model_url: isSwapped ? params.object1ModelUrl : params.object2ModelUrl,
-        object1_thumbnail_url: isSwapped
-          ? params.object2ThumbnailUrl
-          : params.object1ThumbnailUrl,
-        object2_thumbnail_url: isSwapped
-          ? params.object1ThumbnailUrl
-          : params.object2ThumbnailUrl,
-        comparison_image_url: params.comparisonImageUrl,
-        generation_cost: params.generationCost || 0.02,
-        quality_tier: params.qualityTier || 'free',
-        last_served_at: new Date().toISOString(),
-      },
-      {
-        onConflict: 'object1_name,object2_name,quality_tier',
-      }
-    )
+    // @ts-expect-error - Supabase type inference issue with complex Json types
+    .upsert(cacheData, {
+      onConflict: 'object1_name,object2_name,quality_tier',
+    })
     .select()
     .single()
 
@@ -131,7 +130,7 @@ export async function cacheComparison(params: {
     return null
   }
 
-  return data
+  return data as unknown as ComparisonCache
 }
 
 /**
@@ -152,12 +151,13 @@ export async function saveComparisonToHistory(params: {
 
   const { data, error } = await supabase
     .from('comparison_history')
+    // @ts-expect-error - Supabase type inference issue with complex Json types
     .insert({
       user_id: params.userId,
       object1_name: params.object1Name,
       object2_name: params.object2Name,
-      object1_dimensions: params.object1Dimensions as any,
-      object2_dimensions: params.object2Dimensions as any,
+      object1_dimensions: params.object1Dimensions as unknown as Json,
+      object2_dimensions: params.object2Dimensions as unknown as Json,
       from_cache: params.fromCache,
       cache_entry_id: params.cacheEntryId,
       cost: params.cost,
@@ -171,7 +171,7 @@ export async function saveComparisonToHistory(params: {
     return null
   }
 
-  return data.id
+  return (data as { id: string }).id
 }
 
 /**
@@ -217,9 +217,12 @@ export async function getCacheStats(): Promise<{
     return { totalCached: 0, totalServed: 0, totalSavings: 0, hitRate: 0 }
   }
 
-  const totalCached = data.length
-  const totalServed = data.reduce((sum, item) => sum + item.times_served, 0)
-  const totalSavings = data.reduce(
+  type CacheStatsRow = { times_served: number; generation_cost: number }
+  const stats = data as unknown as CacheStatsRow[]
+
+  const totalCached = stats.length
+  const totalServed = stats.reduce((sum, item) => sum + item.times_served, 0)
+  const totalSavings = stats.reduce(
     (sum, item) => sum + item.generation_cost * (item.times_served - 1),
     0
   )
@@ -253,7 +256,7 @@ export async function getPopularComparisons(limit: number = 10): Promise<Compari
     return []
   }
 
-  return data
+  return data as unknown as ComparisonCache[]
 }
 
 /**
@@ -264,7 +267,9 @@ export async function incrementComparisonViews(comparisonId: string): Promise<vo
 
   await supabase
     .from('comparison_history')
+    // @ts-expect-error - Supabase type inference issue
     .update({
+      // @ts-expect-error - supabase.raw may not exist in types
       views: supabase.raw('views + 1'),
     })
     .eq('id', comparisonId)
@@ -278,7 +283,9 @@ export async function incrementComparisonShares(comparisonId: string): Promise<v
 
   await supabase
     .from('comparison_history')
+    // @ts-expect-error - Supabase type inference issue
     .update({
+      // @ts-expect-error - supabase.raw may not exist in types
       shares: supabase.raw('shares + 1'),
     })
     .eq('id', comparisonId)

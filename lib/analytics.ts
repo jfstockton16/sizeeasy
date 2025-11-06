@@ -161,21 +161,18 @@ export async function getConversionFunnel(): Promise<{
   const { count: creditDepletions } = await supabase
     .from('analytics_events')
     .select('*', { count: 'exact', head: true })
-    // @ts-expect-error - Supabase type inference issue
     .eq('event_name', 'credit_depleted')
 
   // Get upgrade shown events
   const { count: upgradeShown } = await supabase
     .from('analytics_events')
     .select('*', { count: 'exact', head: true })
-    // @ts-expect-error - Supabase type inference issue
     .eq('event_name', 'premium_upgrade_shown')
 
   // Get premium conversions
   const { count: premiumConverted } = await supabase
     .from('user_profiles')
     .select('*', { count: 'exact', head: true })
-    // @ts-expect-error - Supabase type inference issue
     .eq('is_premium', true)
 
   const conversionRate =
@@ -208,7 +205,6 @@ export async function getMonthlyRevenue(): Promise<{
   const { data, error } = await supabase
     .from('payment_transactions')
     .select('amount, plan_type, status')
-    // @ts-expect-error - Supabase type inference issue
     .eq('status', 'succeeded')
     .gte('created_at', thirtyDaysAgo)
 
