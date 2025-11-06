@@ -37,8 +37,8 @@ export default function Navigation() {
             <a href="#challenge" className="text-sm font-medium hover:text-brand-500 transition-colors">
               Daily Challenge
             </a>
-            <a href="#leaderboard" className="text-sm font-medium hover:text-brand-500 transition-colors">
-              Leaderboard
+            <a href="#about" className="text-sm font-medium hover:text-brand-500 transition-colors">
+              About
             </a>
 
             <button
@@ -51,10 +51,6 @@ export default function Navigation() {
               ) : (
                 <Moon className="w-5 h-5" />
               )}
-            </button>
-
-            <button className="px-4 py-2 bg-gradient-to-r from-brand-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all">
-              Sign Up Free
             </button>
           </div>
 
@@ -83,8 +79,8 @@ export default function Navigation() {
             <a href="#challenge" className="block text-sm font-medium hover:text-brand-500">
               Daily Challenge
             </a>
-            <a href="#leaderboard" className="block text-sm font-medium hover:text-brand-500">
-              Leaderboard
+            <a href="#about" className="block text-sm font-medium hover:text-brand-500">
+              About
             </a>
             <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-800">
               <span className="text-sm font-medium">Theme</span>
@@ -95,9 +91,6 @@ export default function Navigation() {
                 {resolvedTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
             </div>
-            <button className="w-full px-4 py-2 bg-gradient-to-r from-brand-500 to-purple-600 text-white rounded-full font-medium">
-              Sign Up Free
-            </button>
           </div>
         </motion.div>
       )}

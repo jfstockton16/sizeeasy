@@ -12,10 +12,12 @@ import {
   Layers,
   Lightbulb,
   Box,
+  Camera,
 } from 'lucide-react'
 import { SizeObject, calculateSizeRatio } from '@/lib/objects'
 import { useComparisonStore } from '@/lib/store'
 import dynamic from 'next/dynamic'
+import ComparisonARViewer from './ComparisonARViewer'
 
 // Dynamically import 3D viewer to avoid SSR issues with Three.js
 const Comparison3DViewer = dynamic(() => import('./Comparison3DViewer'), {
@@ -39,6 +41,7 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
   const { viewMode, setViewMode, swapObjects } = useComparisonStore()
   const [liked, setLiked] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [showAR, setShowAR] = useState(false)
 
   const comparison = calculateSizeRatio(object1, object2)
 
@@ -162,6 +165,16 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
         </div>
 
         <div className="flex gap-2">
+          <button
+            onClick={() => setShowAR(true)}
+            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg flex items-center gap-2 hover:shadow-lg transition-all hover:scale-105"
+            title="View in AR"
+          >
+            <Camera className="w-4 h-4" />
+            <span className="hidden sm:inline font-semibold">AR</span>
+            <span className="text-xs bg-white text-green-600 px-1.5 py-0.5 rounded-full ml-1 hidden sm:inline">HOT</span>
+          </button>
+
           <button
             onClick={swapObjects}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
@@ -425,6 +438,15 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
             </div>
           </motion.div>
         </motion.div>
+      )}
+
+      {/* AR Modal */}
+      {showAR && (
+        <ComparisonARViewer
+          object1={object1}
+          object2={object2}
+          onClose={() => setShowAR(false)}
+        />
       )}
     </div>
   )

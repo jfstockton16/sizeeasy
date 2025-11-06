@@ -8,6 +8,7 @@ import TrendingComparisons from '@/components/TrendingComparisons'
 import DailyChallengePreview from '@/components/DailyChallengePreview'
 import StatsBar from '@/components/StatsBar'
 import Navigation from '@/components/Navigation'
+import AdPlacement from '@/components/AdPlacement'
 
 export default function Home() {
   const [showCreator, setShowCreator] = useState(false)
@@ -36,9 +37,26 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <Hero onStartComparison={() => setShowCreator(true)} />
+
+            {/* Ad Placement - Hero Banner */}
+            <div className="flex justify-center py-8 px-4">
+              <AdPlacement slot="hero" />
+            </div>
+
             <StatsBar />
             <DailyChallengePreview />
+
+            {/* Ad Placement - Mid-Content */}
+            <div className="flex justify-center py-8 px-4">
+              <AdPlacement slot="comparison" />
+            </div>
+
             <TrendingComparisons onComparisonClick={() => setShowCreator(true)} />
+
+            {/* Ad Placement - Footer */}
+            <div className="flex justify-center py-12 px-4">
+              <AdPlacement slot="footer" />
+            </div>
           </motion.div>
         ) : (
           <motion.div
