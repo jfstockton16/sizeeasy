@@ -9,9 +9,15 @@ import { trackPremiumUpgradeShown } from '@/lib/analytics'
 import type { UserProfile } from '@/lib/types/database'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-29.clover',
-})
+// Lazy initialize Stripe to avoid build-time errors
+function getStripeClient(): Stripe {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not configured')
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-10-29.clover',
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,6 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Create or get Stripe customer
     let customerId = profile.stripe_customer_id
+    const stripe = getStripeClient()
 
     if (!customerId) {
       const customer = await stripe.customers.create({
