@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('total_comparisons')
-          // @ts-expect-error - Supabase type inference issue
           .eq('id', userId)
           .single()
 
@@ -62,7 +61,6 @@ export async function POST(request: NextRequest) {
             premium_expires: premiumExpires.toISOString(),
             stripe_subscription_id: session.subscription as string,
           })
-          // @ts-expect-error
           .eq('id', userId)
 
         // Record transaction
@@ -104,7 +102,6 @@ export async function POST(request: NextRequest) {
             is_premium: subscription.status === 'active',
             premium_expires: premiumExpires.toISOString(),
           })
-          // @ts-expect-error
           .eq('id', userId)
 
         break
@@ -124,7 +121,6 @@ export async function POST(request: NextRequest) {
             is_premium: false,
             premium_expires: new Date().toISOString(),
           })
-          // @ts-expect-error
           .eq('id', userId)
 
         break

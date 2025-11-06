@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
     // Update referred user's profile
     await supabase
       .from('user_profiles')
+      // @ts-expect-error - Supabase type inference issue
       .update({ referred_by: referrerId } as any)
       .eq('id', referredUserId as any)
 

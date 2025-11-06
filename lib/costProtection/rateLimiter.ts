@@ -423,7 +423,8 @@ export async function getRateLimitStatus(
       redis.get(dayKey).then((v) => Number(v) || 0),
     ]);
 
-    const limits = RATE_LIMITS[effectiveTier.toUpperCase() as 'FREE' | 'PREMIUM'];
+    const tierKey = `${effectiveTier.toUpperCase()}_USER` as 'FREE_USER' | 'PREMIUM_USER';
+    const limits = RATE_LIMITS[tierKey];
     const now = Date.now();
 
     return {
@@ -447,7 +448,8 @@ export async function getRateLimitStatus(
     console.error('Error getting rate limit status:', error);
 
     // Return default values
-    const limits = RATE_LIMITS[effectiveTier.toUpperCase() as 'FREE' | 'PREMIUM'];
+    const tierKey = `${effectiveTier.toUpperCase()}_USER` as 'FREE_USER' | 'PREMIUM_USER';
+    const limits = RATE_LIMITS[tierKey];
     const now = Date.now();
 
     return {

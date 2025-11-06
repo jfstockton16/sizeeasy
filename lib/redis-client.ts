@@ -61,23 +61,23 @@ function createMockRedis(): Redis {
     },
 
     async incr(key: string) {
-      const current = (await this.get(key)) || 0;
+      const current = (await mockRedis.get(key)) || 0;
       const newValue = Number(current) + 1;
-      await this.set(key, newValue);
+      await mockRedis.set(key, newValue);
       return newValue;
     },
 
     async incrby(key: string, amount: number) {
-      const current = (await this.get(key)) || 0;
+      const current = (await mockRedis.get(key)) || 0;
       const newValue = Number(current) + amount;
-      await this.set(key, newValue);
+      await mockRedis.set(key, newValue);
       return newValue;
     },
 
     async incrbyfloat(key: string, amount: number) {
-      const current = (await this.get(key)) || 0;
+      const current = (await mockRedis.get(key)) || 0;
       const newValue = Number(current) + amount;
-      await this.set(key, newValue);
+      await mockRedis.set(key, newValue);
       return newValue;
     },
 
@@ -131,12 +131,12 @@ function createMockRedis(): Redis {
     },
 
     async setex(key: string, seconds: number, value: any) {
-      return this.set(key, value, { ex: seconds });
+      return mockRedis.set(key, value, { ex: seconds });
     },
 
     async setnx(key: string, value: any) {
       if (store.has(key)) return 0;
-      await this.set(key, value);
+      await mockRedis.set(key, value);
       return 1;
     },
 
