@@ -2,16 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Camera, Smartphone, Info } from 'lucide-react'
+import { Camera, Smartphone, Info } from 'lucide-react'
 import { SizeObject } from '@/lib/objects'
 
 interface ComparisonARViewerProps {
   object1: SizeObject
   object2: SizeObject
-  onClose?: () => void
 }
 
-export default function ComparisonARViewer({ object1, object2, onClose }: ComparisonARViewerProps) {
+export default function ComparisonARViewer({ object1, object2 }: ComparisonARViewerProps) {
   const [isARSupported, setIsARSupported] = useState(false)
   const [showInstructions, setShowInstructions] = useState(true)
 
@@ -48,20 +47,12 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
 
   if (!isARSupported) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="glass rounded-2xl p-8 max-w-md mx-auto text-center"
-      >
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        )}
-
+      <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass rounded-2xl p-8 max-w-md mx-4 text-center"
+        >
           <Smartphone className="w-16 h-16 mx-auto mb-4 text-brand-500" />
           <h2 className="text-2xl font-bold mb-4">AR Not Available</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -77,52 +68,26 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
               <span>Android with Chrome browser</span>
             </li>
           </ul>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="w-full py-3 bg-brand-500 text-white rounded-xl font-semibold hover:bg-brand-600 transition-colors"
-            >
-              Got It
-            </button>
-          )}
-      </motion.div>
+          <p className="text-sm text-gray-500 dark:text-gray-500">
+            Try the 3D View mode instead for interactive visualization on desktop!
+          </p>
+        </motion.div>
+      </div>
     )
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="glass rounded-2xl overflow-hidden"
-    >
-      {/* Header */}
-      <div className="p-4 bg-gradient-to-b from-black/80 to-transparent">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Camera className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">AR Mode</span>
-          </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full transition-colors"
+    <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative">
+      {/* Instructions overlay */}
+      {showInstructions && (
+        <div className="absolute top-4 left-4 right-4 z-10 max-w-md mx-auto">
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="glass rounded-2xl p-6"
             >
-              <X className="w-6 h-6 text-white" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <AnimatePresence>
-        {showInstructions && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute bottom-20 left-4 right-4 z-10"
-          >
-            <div className="glass rounded-2xl p-6">
               <div className="flex items-start gap-3 mb-4">
                 <Info className="w-6 h-6 text-brand-500 flex-shrink-0 mt-1" />
                 <div>
@@ -153,13 +118,18 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
               >
                 Got It!
               </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Performance indicator */}
+      <div className="absolute top-4 right-4 z-10 glass rounded-lg px-3 py-2 text-xs font-semibold">
+        <span className="text-green-400">●</span> AR Ready
+      </div>
 
       {/* AR Viewer Container */}
-      <div className="w-full min-h-[600px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+      <div className="w-full h-full flex items-center justify-center">
         <div className="text-center text-white p-8">
           <Camera className="w-20 h-20 mx-auto mb-4 animate-pulse" />
           <h2 className="text-2xl font-bold mb-2">AR Experience Ready</h2>
@@ -205,6 +175,6 @@ export default function ComparisonARViewer({ object1, object2, onClose }: Compar
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
