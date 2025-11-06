@@ -1,17 +1,25 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Hero from '@/components/Hero'
-import ComparisonCreator from '@/components/ComparisonCreator'
-import TrendingComparisons from '@/components/TrendingComparisons'
-import DailyChallengePreview from '@/components/DailyChallengePreview'
-import StatsBar from '@/components/StatsBar'
+import HeroNew from '@/components/HeroNew'
+import DynamicComparison from '@/components/DynamicComparison'
 import Navigation from '@/components/Navigation'
 import AdPlacement from '@/components/AdPlacement'
 
 export default function Home() {
-  const [showCreator, setShowCreator] = useState(false)
+  const [comparisonObjects, setComparisonObjects] = useState<{
+    object1: string
+    object2: string
+  } | null>(null)
+
+  const handleCompare = (object1: string, object2: string) => {
+    setComparisonObjects({ object1, object2 })
+  }
+
+  const handleBack = () => {
+    setComparisonObjects(null)
+  }
 
   return (
     <main className="min-h-screen relative overflow-hidden">
@@ -28,7 +36,7 @@ export default function Home() {
       <Navigation />
 
       <AnimatePresence mode="wait">
-        {!showCreator ? (
+        {!comparisonObjects ? (
           <motion.div
             key="hero"
             initial={{ opacity: 0 }}
@@ -36,22 +44,12 @@ export default function Home() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Hero onStartComparison={() => setShowCreator(true)} />
+            <HeroNew onCompare={handleCompare} />
 
             {/* Ad Placement - Hero Banner */}
             <div className="flex justify-center py-8 px-4">
               <AdPlacement slot="hero" />
             </div>
-
-            <StatsBar />
-            <DailyChallengePreview />
-
-            {/* Ad Placement - Mid-Content */}
-            <div className="flex justify-center py-8 px-4">
-              <AdPlacement slot="comparison" />
-            </div>
-
-            <TrendingComparisons onComparisonClick={() => setShowCreator(true)} />
 
             {/* Ad Placement - Footer */}
             <div className="flex justify-center py-12 px-4">
@@ -60,13 +58,17 @@ export default function Home() {
           </motion.div>
         ) : (
           <motion.div
-            key="creator"
+            key="comparison"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <ComparisonCreator onBack={() => setShowCreator(false)} />
+            <DynamicComparison
+              object1Name={comparisonObjects.object1}
+              object2Name={comparisonObjects.object2}
+              onBack={handleBack}
+            />
           </motion.div>
         )}
       </AnimatePresence>
