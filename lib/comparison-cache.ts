@@ -47,8 +47,11 @@ export async function getCachedComparison(
   const { data, error } = await supabase
     .from('comparisons_cache')
     .select('*')
+    // @ts-expect-error - Supabase type inference issue
     .eq('object1_name', name1)
+    // @ts-expect-error
     .eq('object2_name', name2)
+    // @ts-expect-error
     .eq('quality_tier', qualityTier)
     .single()
 
@@ -63,13 +66,14 @@ export async function getCachedComparison(
   // Update last served time and increment counter
   await supabase
     .from('comparisons_cache')
+    // @ts-expect-error - Supabase type inference issue
     .update({
-      times_served: data.times_served + 1,
+      times_served: (data as any).times_served + 1,
       last_served_at: new Date().toISOString(),
     })
-    .eq('id', data.id)
+    .eq('id', (data as any).id)
 
-  return data
+  return data as unknown as ComparisonCache
 }
 
 /**
