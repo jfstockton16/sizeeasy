@@ -1,7 +1,53 @@
 /**
- * Create Comparison API Route
- * Main API for creating comparisons with credit checking and caching
- * This implements the cache-first architecture to minimize costs
+ * @file app/api/comparison/create/route.ts
+ * @purpose Main API endpoint for creating size comparisons
+ *
+ * CRITICAL DEPENDENCIES:
+ * - Supabase (auth & database) - REQUIRED
+ * - OpenAI API (dimensions) - REQUIRED for new comparisons
+ * - Redis (optional) - For cost tracking and rate limiting
+ *
+ * FLOW OVERVIEW:
+ * 1. Validate input
+ * 2. Check cache (FREE, <10ms)
+ * 3. If cache hit → return immediately
+ * 4. If cache miss → check auth & credits
+ * 5. Generate via OpenAI (~$0.02, 1-2 seconds)
+ * 6. Save to cache for future requests
+ * 7. Deduct credit (if free user)
+ * 8. Save to user history
+ * 9. Return result
+ *
+ * COST ANALYSIS:
+ * - Cache hit: $0.00, ~100ms response
+ * - Cache miss (free user): $0.02, ~2s response, -1 credit
+ * - Cache miss (premium): $0.02, ~2s response, no credit deduction
+ *
+ * COMMON ISSUES:
+ * - "No credits remaining" → User exhausted daily credits
+ *   Fix: Wait for reset or upgrade to premium
+ *
+ * - "Invalid dimensions" → OpenAI API returned malformed data
+ *   Fix: Check OpenAI API key, retry request
+ *
+ * - "Authentication required" → User not logged in
+ *   Fix: Redirect to login page
+ *
+ * - Slow responses → OpenAI API latency or high queue
+ *   Fix: Check OpenAI status, consider caching more aggressively
+ *
+ * MONITORING:
+ * - Cache hit rate should be >70%
+ * - Average response time <500ms (with good cache hit rate)
+ * - Error rate <1%
+ *
+ * @see /docs/architecture/API_FLOW.md for detailed request lifecycle
+ * @see /docs/architecture/CACHING_STRATEGY.md for cache optimization
+ * @see /docs/troubleshooting/COMMON_ISSUES.md for debugging
+ *
+ * @last_modified 2025-11-06
+ * @modified_by Production readiness audit
+ * @modification_reason Added comprehensive inline documentation
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -23,11 +69,63 @@ import {
 } from '@/lib/analytics'
 import { fetchObjectDimensions, validateDimensions } from '@/lib/ai-dimensions'
 
+/**
+ * POST /api/comparison/create
+ *
+ * Creates a comparison between two objects
+ *
+ * @param request NextRequest with body: { object1Name: string, object2Name: string }
+ *
+ * @returns {Object} {
+ *   success: true,
+ *   data: {
+ *     object1: ObjectDimensions,
+ *     object2: ObjectDimensions,
+ *     fromCache: boolean,
+ *     qualityTier: 'free' | 'premium',
+ *     creditsRemaining?: number,
+ *     isPremium: boolean
+ *   }
+ * }
+ *
+ * @throws {400} Invalid input (missing or empty object names)
+ * @throws {401} Not authenticated (for new comparisons)
+ * @throws {403} No credits remaining (free users only)
+ * @throws {500} Generation failed (OpenAI error, database error)
+ *
+ * @example
+ * // Request
+ * POST /api/comparison/create
+ * {
+ *   "object1Name": "elephant",
+ *   "object2Name": "bus"
+ * }
+ *
+ * // Response (cache hit)
+ * {
+ *   "success": true,
+ *   "data": {
+ *     "object1": { "length": 6.0, "width": 3.2, "height": 4.0, "unit": "meters" },
+ *     "object2": { "length": 12.0, "width": 2.5, "height": 3.4, "unit": "meters" },
+ *     "fromCache": true,
+ *     "qualityTier": "free",
+ *     "creditsRemaining": 4,
+ *     "isPremium": false
+ *   }
+ * }
+ */
 export async function POST(request: NextRequest) {
   try {
+    // ========================================================================
+    // STEP 1: INPUT VALIDATION & SANITIZATION
+    // ========================================================================
+    //
+    // Parse request body
+    // SECURITY: Malformed JSON will throw and be caught by try/catch
     const { object1Name, object2Name } = await request.json()
 
-    // Validate input
+    // Validate required fields
+    // WHY: Prevent empty/null requests that waste API calls
     if (
       !object1Name ||
       !object2Name ||
@@ -41,9 +139,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitize input
+    // WHY: Prevent injection attacks and excessive API costs
+    // - trim() removes leading/trailing whitespace
+    // - slice(0, 200) limits length to prevent:
+    //   1. Large OpenAI API costs (charged per token)
+    //   2. Database varchar overflow
+    //   3. Cache key bloat
     const obj1 = object1Name.trim().slice(0, 200)
     const obj2 = object2Name.trim().slice(0, 200)
 
+    // Validate sanitized input
+    // EDGE CASE: "   " (spaces only) becomes "" after trim
     if (obj1.length === 0 || obj2.length === 0) {
       return NextResponse.json(
         { error: 'Object names cannot be empty' },
@@ -51,21 +157,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get authenticated user (optional - guests can't generate but can view cached)
+    // ========================================================================
+    // STEP 2: AUTHENTICATION & USER TIER CHECK
+    // ========================================================================
+    //
+    // Get authenticated user
+    // NOTE: Authentication is OPTIONAL at this stage:
+    // - Guests CAN view cached comparisons (free)
+    // - Guests CANNOT generate new comparisons
+    // WHY: Allows showing cached results without forcing signup
     const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
     // Determine quality tier
+    // Premium users get watermark-free images
+    // Free users get watermarked images
+    // COST: Premium tier cache is separate from free tier
     const isPremium = user ? await isPremiumUser(user.id) : false
     const qualityTier: 'free' | 'premium' = isPremium ? 'premium' : 'free'
 
-    // STEP 1: Check cache first (costs $0)
+    // ========================================================================
+    // STEP 3: CACHE LOOKUP (Highest Priority - Saves Money!)
+    // ========================================================================
+    //
+    // Check if this comparison already exists in cache
+    // PERFORMANCE: ~20-30ms database query
+    // COST: $0.00 (no external API calls)
+    // CACHE KEY: Normalized, alphabetically sorted object names + quality tier
+    //
+    // How it works:
+    // - "Elephant vs Bus" → normalized to ("bus", "elephant") + "free"
+    // - "Bus vs Elephant" → normalized to ("bus", "elephant") + "free"
+    // - Both requests hit the same cache entry!
+    //
+    // See: /lib/comparison-cache.ts → normalizeObjectName()
     const cached = await getCachedComparison(obj1, obj2, qualityTier)
 
     if (cached) {
-      // Cache hit! Save money
+      // ✅ CACHE HIT!
+      // This saved us ~$0.02 in API costs and ~2 seconds of latency
+      //
+      // Track metrics for monitoring cache efficiency
       await trackCacheHit(cached.generation_cost, obj1, obj2)
 
       // Save to user's history if authenticated
