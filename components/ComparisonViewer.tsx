@@ -13,6 +13,7 @@ import {
   Lightbulb,
   Box,
   Camera,
+  X,
 } from 'lucide-react'
 import { SizeObject, calculateSizeRatio } from '@/lib/objects'
 import { useComparisonStore } from '@/lib/store'
@@ -472,11 +473,32 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
 
       {/* AR Modal */}
       {showAR && (
-        <ComparisonARViewer
-          object1={object1}
-          object2={object2}
-          onClose={() => setShowAR(false)}
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowAR(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            className="max-w-4xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative">
+              <button
+                onClick={() => setShowAR(false)}
+                className="absolute -top-4 -right-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <ComparisonARViewer
+                object1={object1}
+                object2={object2}
+              />
+            </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   )
