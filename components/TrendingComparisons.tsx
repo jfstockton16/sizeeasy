@@ -153,7 +153,10 @@ export default function TrendingComparisons({ onComparisonClick }: TrendingCompa
           viewport={{ once: true }}
           className="text-center mt-12"
         >
-          <button className="px-8 py-3 glass rounded-full font-semibold hover:shadow-xl transition-all hover:scale-105">
+          <button
+            onClick={onComparisonClick}
+            className="px-8 py-3 glass rounded-full font-semibold hover:shadow-xl transition-all hover:scale-105"
+          >
             View All Trending →
           </button>
         </motion.div>
