@@ -3,8 +3,6 @@
  * Uses OpenAI GPT-4 to fetch accurate dimensions for any object
  */
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
 export interface ObjectDimensions {
   name: string;
   category: string;
@@ -58,6 +56,9 @@ Examples:
 export async function fetchObjectDimensions(
   objectName: string
 ): Promise<ObjectDimensions> {
+  // Access environment variable at runtime, not at module load time
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
   if (!OPENAI_API_KEY || OPENAI_API_KEY === 'your_openai_api_key_here') {
     // Fallback: return estimated dimensions
     console.warn('OpenAI API key not set, using fallback estimation');
