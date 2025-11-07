@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchObjectDimensions, validateDimensions } from '@/lib/ai-dimensions';
 
-export const runtime = 'edge';
+// Using Node.js runtime for better environment variable support
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
