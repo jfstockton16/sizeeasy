@@ -73,32 +73,33 @@ export default function DynamicComparison({
     setError(null)
 
     try {
-      // Fetch both objects in parallel
-      const [res1, res2] = await Promise.all([
-        fetch('/api/fetch-dimensions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ objectName: object1Name }),
+      // Use the proper comparison API endpoint with caching and auth
+      const res = await fetch('/api/comparison/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          object1Name: object1Name,
+          object2Name: object2Name,
         }),
-        fetch('/api/fetch-dimensions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ objectName: object2Name }),
-        }),
-      ])
+      })
 
-      if (!res1.ok || !res2.ok) {
-        throw new Error('Failed to fetch object dimensions')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to fetch object dimensions')
       }
 
-      const data1 = await res1.json()
-      const data2 = await res2.json()
+      const result = await res.json()
 
-      setObject1({ ...data1.data, modelStatus: 'pending' })
-      setObject2({ ...data2.data, modelStatus: 'pending' })
-    } catch (err) {
-      setError('Failed to load comparison. Please try again.')
-      console.error(err)
+      if (!result.success || !result.data) {
+        throw new Error('Invalid response from server')
+      }
+
+      // Extract the dimension data from the response
+      setObject1({ ...result.data.object1, modelStatus: 'pending' })
+      setObject2({ ...result.data.object2, modelStatus: 'pending' })
+    } catch (err: any) {
+      setError(err.message || 'Failed to load comparison. Please try again.')
+      console.error('Fetch dimensions error:', err)
     } finally {
       setLoading(false)
     }
