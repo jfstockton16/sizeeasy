@@ -2,7 +2,7 @@
  * Admin Control Panel API
  *
  * Manual kill switches and emergency controls for cost protection.
- * CRITICAL: This endpoint must be protected with admin authentication.
+ * PROTECTED: This endpoint requires admin authentication.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,6 +16,8 @@ import { clearQueue } from '@/lib/costProtection/queueSystem';
 import { resetRateLimits } from '@/lib/costProtection/rateLimiter';
 import { unblockUser } from '@/lib/costProtection/abuseDetection';
 import { FEATURE_FLAGS } from '@/config/costProtection';
+import { requireAdmin, logAdminAction } from '@/lib/auth/admin';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'edge';
 
@@ -25,14 +27,18 @@ export const runtime = 'edge';
  */
 export async function POST(req: NextRequest) {
   try {
-    // TODO: Add admin authentication
-    // const user = await authenticateAdmin(req);
-    // if (!user?.isAdmin) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    // Require admin authentication
+    const admin = await requireAdmin();
+    if (!admin) {
+      logger.warn('Unauthorized admin control access attempt');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const body = await req.json();
     const { action, params } = body;
+
+    // Log admin action for audit trail
+    await logAdminAction(action, { params, adminEmail: admin.email });
 
     switch (action) {
       case 'emergency_shutdown':
@@ -78,7 +84,7 @@ export async function POST(req: NextRequest) {
         );
     }
   } catch (error) {
-    console.error('Error executing admin control:', error);
+    logger.error('Error executing admin control', error instanceof Error ? error : undefined);
     return NextResponse.json(
       { error: 'Failed to execute control action' },
       { status: 500 }
@@ -310,7 +316,12 @@ async function handleResetAllCosts() {
  */
 export async function GET(req: NextRequest) {
   try {
-    // TODO: Add admin authentication
+    // Require admin authentication
+    const admin = await requireAdmin();
+    if (!admin) {
+      logger.warn('Unauthorized admin control access attempt');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const redis = getRedisClient();
 
@@ -327,7 +338,7 @@ export async function GET(req: NextRequest) {
       featureFlags: FEATURE_FLAGS,
     });
   } catch (error) {
-    console.error('Error getting control states:', error);
+    logger.error('Error getting control states', error instanceof Error ? error : undefined);
     return NextResponse.json(
       { error: 'Failed to get control states' },
       { status: 500 }
