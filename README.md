@@ -131,6 +131,9 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 UPSTASH_REDIS_REST_URL=https://...upstash.io
 UPSTASH_REDIS_REST_TOKEN=...
 
+# Admin Configuration
+ADMIN_EMAILS=admin@example.com,admin2@example.com
+
 # Meshy AI (3D model generation - optional)
 MESHY_API_KEY=...
 
@@ -164,7 +167,9 @@ sizeeasy/
 │   ├── CreditDisplay.tsx         # Credit counter
 │   ├── UserMenu.tsx              # User dropdown menu
 │   ├── PremiumUpgradeModal.tsx   # Premium upgrade UI
-│   └── ShareButtons.tsx          # Social sharing
+│   ├── ShareButtons.tsx          # Social sharing
+│   ├── ErrorBoundary.tsx         # Error boundary components
+│   └── ThemeProvider.tsx         # Dark/light theme provider
 ├── lib/                          # Utilities and logic
 │   ├── ai-dimensions.ts          # OpenAI dimension fetching
 │   ├── comparison-cache.ts       # Comparison caching logic
@@ -174,7 +179,11 @@ sizeeasy/
 │   ├── watermark.ts              # Free tier watermarks
 │   ├── redis-client.ts           # Redis client (with mock)
 │   ├── meshy.ts                  # 3D model generation
+│   ├── logger.ts                 # Centralized logging system
+│   ├── env.ts                    # Environment validation
 │   ├── costProtection/           # 5-layer cost protection
+│   ├── auth/                     # Authentication utilities
+│   │   └── admin.ts              # Admin authentication
 │   ├── supabase/                 # Supabase clients
 │   └── types/                    # TypeScript types
 ├── config/                       # Configuration
@@ -185,6 +194,41 @@ sizeeasy/
 │   └── cost-simulator.ts         # Test cost protection
 └── public/                       # Static assets
 ```
+
+## 🏗️ Infrastructure Components
+
+### Logging System (`lib/logger.ts`)
+Production-ready centralized logging with structured output:
+```typescript
+import { logger } from '@/lib/logger'
+
+logger.info('User logged in', { userId: '123' })
+logger.error('API failed', error, { endpoint: '/api/comparison' })
+
+// Module-specific logger
+const compareLogger = logger.child({ module: 'comparison' })
+```
+
+### Environment Validation (`lib/env.ts`)
+Validates all environment variables at startup:
+- Required vs optional variable checking
+- URL format validation
+- Type-safe access to env vars
+- Environment-specific requirements (dev vs prod)
+
+### Error Boundaries (`components/ErrorBoundary.tsx`)
+React error boundaries for graceful error handling:
+- Full-page error boundary
+- API-specific error fallbacks
+- Component-level error recovery
+- Integration with logging system
+
+### Admin Authentication (`lib/auth/admin.ts`)
+Secure admin route protection:
+- Email-based admin authentication
+- Database flag support (`is_admin` column)
+- Audit logging for admin actions
+- Used in `/api/admin/*` routes
 
 ## 🎯 How It Works
 
@@ -279,11 +323,14 @@ npm run cost-simulator -- cost-spike   # Cost anomaly
 
 ## 📝 Documentation
 
+- **CODEBASE_AUDIT_REPORT.md** - Comprehensive audit & refactoring report
 - **MONETIZATION_IMPLEMENTATION.md** - Complete monetization system docs
 - **MONETIZATION_SETUP.md** - Step-by-step setup guide
 - **COST_PROTECTION_SYSTEM.md** - Cost protection architecture
 - **COST_PROTECTION_AUDIT.md** - Initial audit findings
 - **SETUP.md** - General setup instructions
+- **DEPLOYMENT.md** - Production deployment guide
+- **VERCEL_SETUP_GUIDE.md** - Vercel-specific instructions
 
 ## 🎯 Roadmap
 
@@ -302,6 +349,10 @@ npm run cost-simulator -- cost-spike   # Cost anomaly
 - [x] Referral system
 - [x] Dark mode
 - [x] Mobile responsive design
+- [x] Centralized logging system
+- [x] Environment validation
+- [x] Error boundaries
+- [x] Admin authentication
 
 ### 🚧 In Progress
 - [ ] User dashboard with comparison history

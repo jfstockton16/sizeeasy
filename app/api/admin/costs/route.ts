@@ -3,6 +3,7 @@
  *
  * Real-time cost monitoring and analytics for admins.
  * Provides comprehensive cost metrics and controls.
+ * PROTECTED: This endpoint requires admin authentication.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +14,8 @@ import { getQueueAnalytics } from '@/lib/costProtection/queueSystem';
 import { getValidationSummary } from '@/lib/costProtection/preRequestValidation';
 import { getSystemAbuseStats } from '@/lib/costProtection/abuseDetection';
 import { getRedisClient } from '@/lib/redis-client';
+import { requireAdmin } from '@/lib/auth/admin';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'edge';
 
@@ -22,11 +25,12 @@ export const runtime = 'edge';
  */
 export async function GET(req: NextRequest) {
   try {
-    // TODO: Add admin authentication
-    // const user = await authenticateAdmin(req);
-    // if (!user?.isAdmin) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    // Require admin authentication
+    const admin = await requireAdmin();
+    if (!admin) {
+      logger.warn('Unauthorized admin costs access attempt');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const redis = getRedisClient();
 
@@ -169,7 +173,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(metrics);
   } catch (error) {
-    console.error('Error getting cost metrics:', error);
+    logger.error('Error getting cost metrics', error instanceof Error ? error : undefined);
     return NextResponse.json(
       { error: 'Failed to get cost metrics' },
       { status: 500 }
@@ -202,7 +206,7 @@ async function getCacheStats(): Promise<{
       totalMisses: misses,
     };
   } catch (error) {
-    console.error('Error getting cache stats:', error);
+    logger.error('Error getting cache stats', error instanceof Error ? error : undefined);
     return {
       hitRate: 0,
       totalHits: 0,
@@ -275,7 +279,7 @@ async function getActiveAlerts(): Promise<
 
     return alerts;
   } catch (error) {
-    console.error('Error getting active alerts:', error);
+    logger.error('Error getting active alerts', error instanceof Error ? error : undefined);
     return alerts;
   }
 }
