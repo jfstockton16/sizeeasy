@@ -350,25 +350,30 @@ export default function DynamicComparison({
                   {object1.height && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Height:</span>
-                      <span className="font-semibold">{object1.height.toFixed(2)}m</span>
+                      <span className="font-semibold">{(object1.height * 3.28084).toFixed(1)} ft</span>
                     </div>
                   )}
                   {object1.width && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Width:</span>
-                      <span className="font-semibold">{object1.width.toFixed(2)}m</span>
+                      <span className="font-semibold">{(object1.width * 3.28084).toFixed(1)} ft</span>
                     </div>
                   )}
                   {object1.length && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Length:</span>
-                      <span className="font-semibold">{object1.length.toFixed(2)}m</span>
+                      <span className="font-semibold">{(object1.length * 3.28084).toFixed(1)} ft</span>
                     </div>
                   )}
                   {object1.weight && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Weight:</span>
-                      <span className="font-semibold">{object1.weight.toLocaleString()}kg</span>
+                      <span className="font-semibold">
+                        {object1.weight * 2.20462 >= 2000
+                          ? `${((object1.weight * 2.20462) / 2000).toFixed(1)} tons`
+                          : `${Math.round(object1.weight * 2.20462).toLocaleString()} lbs`
+                        }
+                      </span>
                     </div>
                   )}
                 </div>
@@ -398,25 +403,30 @@ export default function DynamicComparison({
                   {object2.height && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Height:</span>
-                      <span className="font-semibold">{object2.height.toFixed(2)}m</span>
+                      <span className="font-semibold">{(object2.height * 3.28084).toFixed(1)} ft</span>
                     </div>
                   )}
                   {object2.width && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Width:</span>
-                      <span className="font-semibold">{object2.width.toFixed(2)}m</span>
+                      <span className="font-semibold">{(object2.width * 3.28084).toFixed(1)} ft</span>
                     </div>
                   )}
                   {object2.length && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Length:</span>
-                      <span className="font-semibold">{object2.length.toFixed(2)}m</span>
+                      <span className="font-semibold">{(object2.length * 3.28084).toFixed(1)} ft</span>
                     </div>
                   )}
                   {object2.weight && (
                     <div className="flex justify-between">
                       <span className="text-gray-600 dark:text-gray-400">Weight:</span>
-                      <span className="font-semibold">{object2.weight.toLocaleString()}kg</span>
+                      <span className="font-semibold">
+                        {object2.weight * 2.20462 >= 2000
+                          ? `${((object2.weight * 2.20462) / 2000).toFixed(1)} tons`
+                          : `${Math.round(object2.weight * 2.20462).toLocaleString()} lbs`
+                        }
+                      </span>
                     </div>
                   )}
                 </div>
