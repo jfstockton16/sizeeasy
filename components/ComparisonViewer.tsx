@@ -15,7 +15,14 @@ import {
   Camera,
   X,
 } from 'lucide-react'
-import { SizeObject, calculateSizeRatio } from '@/lib/objects'
+import {
+  SizeObject,
+  calculateSizeRatio,
+  formatImperialHeight,
+  formatImperialWeight,
+  metersToFeet,
+  getObjectEmoji
+} from '@/lib/objects'
 import { useComparisonStore } from '@/lib/store'
 import dynamic from 'next/dynamic'
 import ComparisonARViewer from './ComparisonARViewer'
@@ -63,30 +70,77 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
   const obj1Dims = getScaledDimensions(object1)
   const obj2Dims = getScaledDimensions(object2)
 
-  // Generate quirky equivalents
+  // Generate mind-blowing facts
   const generateQuirkyFacts = () => {
     const facts = []
     const ratio = comparison.ratio
 
-    // Banana comparison (because internet)
-    const bananaLength = 0.18 // meters
+    // Get the larger and smaller objects for comparisons
+    const largerObj = comparison.ratio > 1 ? object1 : object2
+    const smallerObj = comparison.ratio > 1 ? object2 : object1
+    const actualRatio = Math.max(ratio, 1 / ratio)
+
+    // Epic height comparisons
     if (object1.height || object1.length) {
-      const size = object1.height || object1.length || 0
-      const bananas = Math.round(size / bananaLength)
-      facts.push(`${object1.name} is about ${bananas.toLocaleString()} bananas ${comparison.dimension}!`)
+      const heightMeters = object1.height || object1.length || 0
+      const heightFeet = metersToFeet(heightMeters)
+
+      // Statue of Liberty comparison
+      const statueHeight = 305 // feet (with pedestal)
+      if (heightFeet > 100) {
+        const statues = (heightFeet / statueHeight).toFixed(1)
+        if (parseFloat(statues) > 0.5) {
+          facts.push(`🗽 Standing at ${formatImperialHeight(heightMeters)}, that's ${statues} Statues of Liberty stacked up!`)
+        }
+      }
+
+      // Basketball court comparison
+      const courtLength = 94 // feet
+      if (heightMeters > 10) {
+        const courts = (heightFeet / courtLength).toFixed(1)
+        facts.push(`🏀 Laid end to end, you'd need ${courts} basketball courts to match this length!`)
+      }
+
+      // School bus comparison
+      const busLength = 35 // feet
+      if (heightFeet > 20) {
+        const buses = Math.round(heightFeet / busLength)
+        facts.push(`🚌 That's roughly ${buses} school buses lined up bumper to bumper!`)
+      }
     }
 
-    // Football field comparison
-    const footballField = 109.7 // meters
-    if (object1.length && object1.length > 50) {
-      const fields = (object1.length / footballField).toFixed(2)
-      facts.push(`That's ${fields} football fields!`)
+    // Mind-blowing weight comparisons
+    if (object1.weight) {
+      const weightLbs = object1.weight * 2.20462
+
+      // Car comparison
+      const carWeight = 4000 // lbs
+      if (weightLbs > carWeight) {
+        const cars = Math.round(weightLbs / carWeight)
+        facts.push(`🚗 Weighing ${formatImperialWeight(object1.weight)}, that's ${cars.toLocaleString()} cars worth of mass!`)
+      }
+
+      // Elephant comparison
+      const elephantWeight = 13000 // lbs
+      if (weightLbs > elephantWeight / 2) {
+        const elephants = (weightLbs / elephantWeight).toFixed(1)
+        facts.push(`🐘 That's the same weight as ${elephants} African elephants!`)
+      }
     }
 
-    // Stacking comparison
-    if (ratio > 2) {
-      const count = Math.floor(ratio)
-      facts.push(`You could stack ${count} ${object2.name}s to match one ${object1.name}`)
+    // Stacking drama
+    if (actualRatio > 2) {
+      const count = Math.floor(actualRatio)
+      if (count > 10) {
+        facts.push(`💥 Mind-blowing: You'd need to stack ${count.toLocaleString()} ${smallerObj.name}s to reach the ${comparison.dimension} of just ONE ${largerObj.name}!`)
+      } else {
+        facts.push(`📏 Stack ${count} ${smallerObj.name}s together to match ONE ${largerObj.name}'s ${comparison.dimension}!`)
+      }
+    }
+
+    // Extreme size difference
+    if (actualRatio > 50) {
+      facts.push(`🤯 The size difference is EXTREME - imagine comparing a marble to a beach ball, then multiply that by ${Math.floor(actualRatio / 10)}!`)
     }
 
     return facts
@@ -196,29 +250,40 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               className="flex flex-col items-center"
             >
               <div
-                className="relative bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-white/20"
+                className="relative bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 rounded-3xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-brand-300/50"
                 style={{
                   width: `${Math.min(obj1Dims.scale * 80, 200)}px`,
                   height: `${obj1Dims.height}px`,
                 }}
               >
-                {/* Grid pattern overlay */}
-                <div className="absolute inset-0 opacity-10" style={{
-                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
-                  backgroundSize: '20px 20px'
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-400/50 via-transparent to-brand-600/50 animate-pulse" />
+
+                {/* Subtle pattern overlay */}
+                <div className="absolute inset-0 opacity-5" style={{
+                  backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+                  backgroundSize: '15px 15px'
                 }} />
-                <div className="text-center p-4 relative z-10">
-                  <div className="text-4xl mb-2">📏</div>
-                  <div className="text-sm font-semibold">{object1.name}</div>
+
+                <div className="text-center p-4 relative z-10 flex flex-col items-center justify-center h-full">
+                  <div className="text-7xl mb-3 drop-shadow-lg">{getObjectEmoji(object1)}</div>
+                  <div className="text-sm font-bold bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                    {object1.name}
+                  </div>
                 </div>
-                {/* Shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
+
+                {/* Enhanced shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-50" />
+
+                {/* Glowing edge effect */}
+                <div className="absolute inset-0 shadow-inner shadow-brand-300/50" />
               </div>
-              <div className="text-center">
-                <div className="font-bold text-lg">{object1.name}</div>
-                <div className="text-sm text-gray-500">
-                  {object1.height && `${object1.height}m tall`}
-                  {object1.length && !object1.height && `${object1.length}m long`}
+              <div className="text-center bg-brand-50 dark:bg-brand-900/20 rounded-xl p-3 min-w-[160px]">
+                <div className="font-bold text-lg mb-1">{object1.name}</div>
+                <div className="text-sm font-semibold text-brand-600 dark:text-brand-400">
+                  {object1.height && formatImperialHeight(object1.height)}
+                  {object1.length && !object1.height && formatImperialHeight(object1.length)}
+                  {(object1.height || object1.length) && ' tall'}
                 </div>
               </div>
             </motion.div>
@@ -230,29 +295,40 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
               className="flex flex-col items-center"
             >
               <div
-                className="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-white/20"
+                className="relative bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-3xl mb-4 flex items-center justify-center text-white font-bold shadow-2xl overflow-hidden border-4 border-purple-300/50"
                 style={{
                   width: `${Math.min(obj2Dims.scale * 80, 200)}px`,
                   height: `${obj2Dims.height}px`,
                 }}
               >
-                {/* Grid pattern overlay */}
-                <div className="absolute inset-0 opacity-10" style={{
-                  backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .3) 25%, rgba(255, 255, 255, .3) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .3) 75%, rgba(255, 255, 255, .3) 76%, transparent 77%, transparent)',
-                  backgroundSize: '20px 20px'
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-purple-400/50 via-transparent to-purple-600/50 animate-pulse" />
+
+                {/* Subtle pattern overlay */}
+                <div className="absolute inset-0 opacity-5" style={{
+                  backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+                  backgroundSize: '15px 15px'
                 }} />
-                <div className="text-center p-4 relative z-10">
-                  <div className="text-4xl mb-2">📐</div>
-                  <div className="text-sm font-semibold">{object2.name}</div>
+
+                <div className="text-center p-4 relative z-10 flex flex-col items-center justify-center h-full">
+                  <div className="text-7xl mb-3 drop-shadow-lg">{getObjectEmoji(object2)}</div>
+                  <div className="text-sm font-bold bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                    {object2.name}
+                  </div>
                 </div>
-                {/* Shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
+
+                {/* Enhanced shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-50" />
+
+                {/* Glowing edge effect */}
+                <div className="absolute inset-0 shadow-inner shadow-purple-300/50" />
               </div>
-              <div className="text-center">
-                <div className="font-bold text-lg">{object2.name}</div>
-                <div className="text-sm text-gray-500">
-                  {object2.height && `${object2.height}m tall`}
-                  {object2.length && !object2.height && `${object2.length}m long`}
+              <div className="text-center bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 min-w-[160px]">
+                <div className="font-bold text-lg mb-1">{object2.name}</div>
+                <div className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                  {object2.height && formatImperialHeight(object2.height)}
+                  {object2.length && !object2.height && formatImperialHeight(object2.length)}
+                  {(object2.height || object2.length) && ' tall'}
                 </div>
               </div>
             </motion.div>
@@ -378,24 +454,26 @@ export default function ComparisonViewer({ object1, object2 }: ComparisonViewerP
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-brand-50 dark:bg-brand-900/20 rounded-lg p-4">
-            <div className="font-semibold text-brand-600 dark:text-brand-400 mb-2">
+            <div className="font-semibold text-brand-600 dark:text-brand-400 mb-2 flex items-center gap-2">
+              <span className="text-2xl">{getObjectEmoji(object1)}</span>
               {object1.name}
             </div>
-            <div className="space-y-1 text-sm">
-              {object1.height && <div>Height: {object1.height}m</div>}
-              {object1.length && <div>Length: {object1.length}m</div>}
-              {object1.weight && <div>Weight: {object1.weight.toLocaleString()}kg</div>}
+            <div className="space-y-1 text-sm font-medium">
+              {object1.height && <div>Height: {formatImperialHeight(object1.height)}</div>}
+              {object1.length && <div>Length: {formatImperialHeight(object1.length)}</div>}
+              {object1.weight && <div>Weight: {formatImperialWeight(object1.weight)}</div>}
             </div>
           </div>
 
           <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-            <div className="font-semibold text-purple-600 dark:text-purple-400 mb-2">
+            <div className="font-semibold text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-2">
+              <span className="text-2xl">{getObjectEmoji(object2)}</span>
               {object2.name}
             </div>
-            <div className="space-y-1 text-sm">
-              {object2.height && <div>Height: {object2.height}m</div>}
-              {object2.length && <div>Length: {object2.length}m</div>}
-              {object2.weight && <div>Weight: {object2.weight.toLocaleString()}kg</div>}
+            <div className="space-y-1 text-sm font-medium">
+              {object2.height && <div>Height: {formatImperialHeight(object2.height)}</div>}
+              {object2.length && <div>Length: {formatImperialHeight(object2.length)}</div>}
+              {object2.weight && <div>Weight: {formatImperialWeight(object2.weight)}</div>}
             </div>
           </div>
         </div>

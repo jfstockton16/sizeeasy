@@ -226,6 +226,93 @@ export function getRandomObjects(count: number): SizeObject[] {
   return shuffled.slice(0, count)
 }
 
+// Unit conversion utilities
+export function metersToFeet(meters: number): number {
+  return meters * 3.28084
+}
+
+export function metersToInches(meters: number): number {
+  return meters * 39.3701
+}
+
+export function kgToPounds(kg: number): number {
+  return kg * 2.20462
+}
+
+export function formatImperialHeight(meters: number): string {
+  const totalInches = metersToInches(meters)
+  const feet = Math.floor(totalInches / 12)
+  const inches = Math.round(totalInches % 12)
+
+  if (feet === 0) {
+    return `${inches}"`
+  } else if (inches === 0) {
+    return `${feet}'`
+  } else {
+    return `${feet}' ${inches}"`
+  }
+}
+
+export function formatImperialWeight(kg: number): string {
+  const pounds = kgToPounds(kg)
+  if (pounds >= 2000) {
+    const tons = pounds / 2000
+    return `${tons.toLocaleString(undefined, { maximumFractionDigits: 1 })} tons`
+  }
+  return `${Math.round(pounds).toLocaleString()} lbs`
+}
+
+// Get emoji representation for objects
+export function getObjectEmoji(obj: SizeObject): string {
+  const name = obj.name.toLowerCase()
+  const category = obj.category.toLowerCase()
+
+  // Animals
+  if (name.includes('whale')) return '🐋'
+  if (name.includes('rex') || name.includes('dinosaur')) return '🦖'
+  if (name.includes('elephant')) return '🐘'
+  if (name.includes('giraffe')) return '🦒'
+  if (name.includes('lion')) return '🦁'
+  if (name.includes('tiger')) return '🐯'
+  if (name.includes('bear')) return '🐻'
+  if (name.includes('gorilla')) return '🦍'
+  if (name.includes('shark')) return '🦈'
+  if (name.includes('octopus')) return '🐙'
+
+  // Buildings & Monuments
+  if (name.includes('eiffel')) return '🗼'
+  if (name.includes('empire') || name.includes('burj')) return '🏢'
+  if (name.includes('statue')) return '🗽'
+  if (name.includes('pyramid')) return '🔺'
+  if (category.includes('building')) return '🏛️'
+  if (category.includes('monument')) return '🗿'
+
+  // Vehicles
+  if (name.includes('bus')) return '🚌'
+  if (name.includes('747') || name.includes('airplane') || name.includes('plane')) return '✈️'
+  if (name.includes('car')) return '🚗'
+  if (name.includes('truck')) return '🚚'
+  if (name.includes('train')) return '🚂'
+  if (name.includes('rocket')) return '🚀'
+  if (name.includes('ship') || name.includes('boat')) return '🚢'
+
+  // Sports & Objects
+  if (name.includes('basketball')) return '🏀'
+  if (name.includes('football')) return '🏈'
+  if (name.includes('soccer')) return '⚽'
+  if (name.includes('baseball')) return '⚾'
+
+  // People
+  if (name.includes('human') || name.includes('person')) return '🧍'
+
+  // Default by category
+  if (category.includes('animal')) return '🦁'
+  if (category.includes('vehicle')) return '🚗'
+  if (category.includes('sport')) return '⚽'
+
+  return '📦'
+}
+
 export function calculateSizeRatio(obj1: SizeObject, obj2: SizeObject): {
   ratio: number
   dimension: string
